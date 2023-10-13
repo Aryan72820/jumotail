@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
+        REPO="https://github.com/aryan2879/jumotail.git"
+    }
+    stages {
+        stage('Build and Push Docker Images') {
+            steps {
+                script {
+                    def gitCommit = sh(script: 'git log --pretty=format:"%h" -n 1', returnStatus: true).trim()
+                    def imageName = "${DOCKER_REGISTRY}/your-image-name:${gitCommit}"
+                    def dockerImage = docker.build(imageName)
+                    docker.withRegistry(DOCKER_REGISTRY, DOCKERHUB_CREDENTIALS_ID) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+              stage('Deploy Helm') {
+            steps {
+                script {
+helm install test ./test
+
+                }
+            }
+        }
+    }
+}
